@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Muhammad Haroon | AI Visual Creator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: '#FAF7F2',
+            warm: '#F5F0E8',
+            gold: '#C9A66B',
+            goldLight: '#E8D5B5',
+            charcoal: '#2A2A2A',
+            muted: '#8A8A8A',
+            sage: '#A8B5A0',
+            rose: '#D4A5A5',
+          },
+          fontFamily: {
+            display: ['Outfit', 'sans-serif'],
+            body: ['Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --bg: #FAF7F2;
+      --card: #FFFFFF;
+      --fg: #2A2A2A;
+      --muted: #8A8A8A;
+      --accent: #C9A66B;
+      --accent-light: #E8D5B5;
+      --border: rgba(201, 166, 107, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      overflow-x: hidden;
+    }
+
+    .font-display {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Subtle grain texture */
+    .grain::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.03;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    /* Floating orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.4;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      33% { transform: translateY(-30px) rotate(5deg); }
+      66% { transform: translateY(20px) rotate(-5deg); }
+    }
+
+    /* Entrance animations */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* Portfolio card hover */
+    .portfolio-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    @media (min-width: 768px) {
+      .portfolio-card {
+        border-radius: 16px;
+      }
+    }
+
+    .portfolio-card img {
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .portfolio-card:hover img {
+      transform: scale(1.08);
+    }
+
+    .portfolio-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(42, 42, 42, 0.9) 0%, rgba(42, 42, 42, 0) 60%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 16px;
+    }
+
+    @media (min-width: 768px) {
+      .portfolio-overlay {
+        padding: 24px;
+      }
+    }
+
+    @media (hover: hover) {
+      .portfolio-card:hover .portfolio-overlay {
+        opacity: 1;
+      }
+
+      .portfolio-overlay h3,
+      .portfolio-overlay p,
+      .portfolio-overlay a {
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .portfolio-card:hover .portfolio-overlay h3 {
+        transform: translateY(0);
+        opacity: 1;
+        transition-delay: 0.1s;
+      }
+
+      .portfolio-card:hover .portfolio-overlay p {
+        transform: translateY(0);
+        opacity: 1;
+        transition-delay: 0.15s;
+      }
+
+      .portfolio-card:hover .portfolio-overlay a {
+        transform: translateY(0);
+        opacity: 1;
+        transition-delay: 0.2s;
+      }
+    }
+
+    /* Show overlay on touch devices */
+    @media (hover: none) {
+      .portfolio-overlay {
+        opacity: 1;
+        background: linear-gradient(to top, rgba(42, 42, 42, 0.85) 0%, rgba(42, 42, 42, 0) 70%);
+      }
+      .portfolio-overlay h3,
+      .portfolio-overlay p,
+      .portfolio-overlay a {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Button styles */
+    .btn-primary {
+      background: linear-gradient(135deg, #C9A66B 0%, #D4B87A 100%);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(201, 166, 107, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    @media (min-width: 768px) {
+      .btn-primary {
+        padding: 14px 32px;
+        font-size: 16px;
+      }
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(201, 166, 107, 0.4);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--fg);
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(201, 166, 107, 0.2);
+      font-size: 14px;
+    }
+
+    @media (min-width: 768px) {
+      .btn-secondary {
+        padding: 14px 32px;
+        font-size: 16px;
+      }
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      box-shadow: 0 4px 20px rgba(201, 166, 107, 0.15);
+    }
+
+    /* Focus states */
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Form inputs */
+    .form-input {
+      background: white;
+      border: 1px solid rgba(201, 166, 107, 0.2);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    @media (min-width: 768px) {
+      .form-input {
+        padding: 16px 20px;
+      }
+    }
+
+    .form-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(201, 166, 107, 0.1);
+    }
+
+    /* Stats counter animation */
+    @keyframes countUp {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .stat-number {
+      animation: countUp 0.6s ease-out forwards;
+    }
+
+    /* Navigation */
+    .nav-link {
+      position: relative;
+      color: var(--muted);
+      transition: color 0.3s ease;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--accent);
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--fg);
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(10px); }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      
+      .orb {
+        animation: none;
+      }
+    }
+
+    /* Category filter */
+    .filter-btn {
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    @media (min-width: 768px) {
+      .filter-btn {
+        padding: 8px 20px;
+        font-size: 14px;
+      }
+    }
+
+    .filter-btn:hover {
+      color: var(--fg);
+      background: rgba(201, 166, 107, 0.1);
+    }
+
+    .filter-btn.active {
+      color: var(--fg);
+      background: white;
+      border-color: rgba(201, 166, 107, 0.3);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Mobile menu */
+    .mobile-menu {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 280px;
+      background: white;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      z-index: 100;
+      padding: 80px 24px 24px;
+      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .mobile-menu.open {
+      transform: translateX(0);
+    }
+
+    .mobile-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(42, 42, 42, 0.5);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 90;
+    }
+
+    .mobile-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+  </style>
+</head>
+<body class="grain">
+  <!-- Floating decorative orbs - hidden on mobile -->
+  <div class="hidden lg:block">
+    <div class="orb w-96 h-96 bg-goldLight top-20 -left-48" style="animation-delay: 0s;"></div>
+    <div class="orb w-80 h-80 bg-sage top-96 -right-40" style="animation-delay: -7s;"></div>
+    <div class="orb w-64 h-64 bg-rose bottom-40 left-1/4" style="animation-delay: -14s;"></div>
+  </div>
+
+  <!-- Mobile overlay -->
+  <div class="mobile-overlay" id="mobile-overlay"></div>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <button class="absolute top-6 right-6 p-2" id="close-menu" aria-label="Close menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <nav class="flex flex-col gap-6">
+      <a href="#work" class="text-lg font-medium text-charcoal hover:text-gold transition-colors mobile-nav-link">Work</a>
+      <a href="#about" class="text-lg font-medium text-charcoal hover:text-gold transition-colors mobile-nav-link">About</a>
+      <a href="#contact" class="text-lg font-medium text-charcoal hover:text-gold transition-colors mobile-nav-link">Contact</a>
+      <a href="#contact" class="btn-primary justify-center mt-4 mobile-nav-link">Get Started</a>
+    </nav>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-cream/80 backdrop-blur-md border-b border-gold/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+      <a href="#" class="font-display text-xl sm:text-2xl font-bold text-charcoal">
+        M<span class="text-gold">.</span>Haroon
+      </a>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#work" class="nav-link font-medium text-sm lg:text-base">Work</a>
+        <a href="#about" class="nav-link font-medium text-sm lg:text-base">About</a>
+        <a href="#contact" class="nav-link font-medium text-sm lg:text-base">Contact</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="#contact" class="btn-primary hidden sm:inline-flex">Get Started</a>
+        <button class="md:hidden p-2 hover:bg-gold/10 rounded-lg transition-colors" id="menu-toggle" aria-label="Open menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="min-h-screen pt-20 sm:pt-24 pb-12 sm:pb-16 relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-full">
+      <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[calc(100vh-5rem)] lg:min-h-[calc(100vh-6rem)]">
+        <!-- Left content -->
+        <div class="flex flex-col justify-center order-2 lg:order-1">
+          <p class="text-gold font-medium mb-3 sm:mb-4 reveal text-sm sm:text-base">AI-Powered Visual Creator</p>
+          <h1 class="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight mb-4 sm:mb-6 reveal reveal-delay-1">
+            Images That Sell.<br>
+            <span class="text-muted">Not Just Look Pretty.</span>
+          </h1>
+          <p class="text-base sm:text-lg lg:text-xl text-muted leading-relaxed mb-6 sm:mb-10 max-w-lg reveal reveal-delay-2">
+            High-quality visuals crafted to capture attention, build trust, and drive real results for your brand.
+          </p>
+          <div class="flex flex-wrap gap-3 sm:gap-4 mb-8 sm:mb-12 reveal reveal-delay-3">
+            <a href="#work" class="btn-primary">
+              See the Work
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 17L17 7M17 7H7M17 7V17"/>
+              </svg>
+            </a>
+            <a href="#contact" class="btn-secondary">Contact Me</a>
+          </div>
+          
+          <!-- Stats -->
+          <div class="flex flex-wrap gap-4 sm:gap-8 reveal reveal-delay-4">
+            <div class="text-center">
+              <p class="font-display text-2xl sm:text-3xl font-bold text-charcoal stat-number">47%</p>
+              <p class="text-xs sm:text-sm text-muted mt-1">Avg. CTR Increase</p>
+            </div>
+            <div class="w-px bg-gold/20"></div>
+            <div class="text-center">
+              <p class="font-display text-2xl sm:text-3xl font-bold text-charcoal stat-number">200+</p>
+              <p class="text-xs sm:text-sm text-muted mt-1">Projects Delivered</p>
+            </div>
+            <div class="w-px bg-gold/20"></div>
+            <div class="text-center">
+              <p class="font-display text-2xl sm:text-3xl font-bold text-charcoal stat-number">98%</p>
+              <p class="text-xs sm:text-sm text-muted mt-1">Client Satisfaction</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right image -->
+        <div class="relative reveal reveal-delay-2 order-1 lg:order-2">
+          <div class="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl shadow-charcoal/10">
+            <img 
+              src="images/profile.jpg" 
+              alt="Creative AI visual art"
+              class="w-full h-[280px] sm:h-[320px] md:h-[380px] lg:h-[420px] xl:h-[480px] object-cover"
+            >
+            <div class="absolute inset-0 bg-gradient-to-t from-cream/20 to-transparent"></div>
+          </div>
+          <!-- Floating badge -->
+          <div class="absolute -bottom-4 sm:-bottom-6 left-4 sm:left-6 bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg shadow-charcoal/5">
+            <div class="flex items-center gap-2 sm:gap-3">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-gold to-goldLight flex items-center justify-center flex-shrink-0">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white" class="sm:w-5 sm:h-5">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                </svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-semibold text-charcoal text-sm sm:text-base">Available for Projects</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="text-xs font-medium text-gold bg-gold/10 px-2 py-0.5 rounded-full border border-gold/20">
+                    DeepLearning.AI Certified
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 scroll-indicator hidden lg:block">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-muted">
+        <path d="M12 5v14M19 12l-7 7-7-7"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Portfolio Section -->
+  <section id="work" class="py-16 sm:py-20 lg:py-24 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-10 sm:mb-16 reveal">
+        <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">Example of Work</h2>
+        <p class="text-base sm:text-lg lg:text-xl text-muted max-w-2xl mx-auto">Visuals that elevate brands and drive engagement</p>
+      </div>
+      
+      <!-- Category filters -->
+      <div class="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-12 reveal reveal-delay-1">
+        <button class="filter-btn active" data-filter="all">All Projects</button>
+        <button class="filter-btn" data-filter="product">Products</button>
+        <button class="filter-btn" data-filter="lifestyle">Lifestyle</button>
+        <button class="filter-btn" data-filter="fashion">Fashion</button>
+        <button class="filter-btn" data-filter="food">Food</button>
+      </div>
+      
+      <!-- Portfolio Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" id="portfolio-grid">
+        <!-- Items will be rendered by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-16 sm:py-20 lg:py-24 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+        <!-- Image -->
+        <div class="relative reveal order-2 lg:order-1">
+          <div class="rounded-2xl sm:rounded-3xl overflow-hidden">
+            <img 
+              src="images/profile.jpg" 
+              alt="Muhammad Haroon - AI Visual Creator"
+              class="w-full h-[300px] sm:h-[350px] lg:h-[400px] xl:h-[500px] object-cover"
+            >
+          </div>
+          <!-- Decorative element -->
+          <div class="absolute -z-10 -bottom-4 sm:-bottom-8 -right-4 sm:-right-8 w-full h-full rounded-2xl sm:rounded-3xl border-2 border-gold/30"></div>
+        </div>
+        
+        <!-- Content -->
+        <div class="reveal reveal-delay-1 order-1 lg:order-2">
+          <p class="text-gold font-medium mb-3 sm:mb-4 text-sm sm:text-base">About</p>
+          <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6">
+            Creating visuals that build trust
+          </h2>
+          <p class="text-base sm:text-lg text-muted leading-relaxed mb-6 sm:mb-8">
+            I create high-quality, AI-powered visuals that help brands stand out, build trust, and increase sales. Every image is carefully engineered for maximum impact, not just aesthetics.
+          </p>
+          
+          <!-- Info cards -->
+          <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm border border-gold/10">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-gold mb-2 sm:mb-3 w-5 h-5 sm:w-6 sm:h-6">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+              <p class="font-medium text-charcoal text-sm sm:text-base">Working</p>
+              <p class="text-muted text-xs sm:text-sm">Remote, Worldwide</p>
+            </div>
+            <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm border border-gold/10">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-gold mb-2 sm:mb-3 w-5 h-5 sm:w-6 sm:h-6">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              <p class="font-medium text-charcoal text-sm sm:text-base">Email</p>
+              <p class="text-muted text-xs sm:text-sm truncate">mharoon.contact@gmail.com</p>
+            </div>
+            <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm border border-gold/10">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-gold mb-2 sm:mb-3 w-5 h-5 sm:w-6 sm:h-6">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+              <p class="font-medium text-charcoal text-sm sm:text-base">Phone</p>
+              <p class="text-muted text-xs sm:text-sm">+92 346 868 4915</p>
+            </div>
+            <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm border border-gold/10">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-gold mb-2 sm:mb-3 w-5 h-5 sm:w-6 sm:h-6">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <p class="font-medium text-charcoal text-sm sm:text-base">Response</p>
+              <p class="text-muted text-xs sm:text-sm">Within 24 hours</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-16 sm:py-20 lg:py-24 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="grid lg:grid-cols-2 gap-10 lg:gap-16">
+        <!-- Left content -->
+        <div class="reveal">
+          <p class="text-gold font-medium mb-3 sm:mb-4 text-sm sm:text-base">Get in Touch</p>
+          <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6">
+            Let's create something beautiful
+          </h2>
+          <p class="text-base sm:text-lg text-muted leading-relaxed mb-6 sm:mb-8">
+            Ready to elevate your brand with stunning visuals? I'd love to hear about your project and discuss how we can work together.
+          </p>
+          
+          <!-- Trust indicators -->
+          <div class="flex flex-wrap gap-4 sm:gap-6">
+            <div class="flex items-center gap-2">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gold flex-shrink-0">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              <span class="text-muted text-sm sm:text-base">Free consultation</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gold flex-shrink-0">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              <span class="text-muted text-sm sm:text-base">Fast turnaround</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gold flex-shrink-0">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              <span class="text-muted text-sm sm:text-base">Revisions included</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Contact form -->
+        <div class="reveal reveal-delay-1">
+          <form id="contact-form" class="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg shadow-charcoal/5 border border-gold/10">
+            <div class="space-y-4 sm:space-y-5">
+              <div>
+                <label for="name" class="block text-sm font-medium text-charcoal mb-2">Your Name</label>
+                <input 
+                  type="text" 
+                  id="name" 
+                  name="name" 
+                  class="form-input" 
+                  placeholder="John Smith"
+                  required
+                >
+              </div>
+              <div>
+                <label for="email" class="block text-sm font-medium text-charcoal mb-2">Email Address</label>
+                <input 
+                  type="email" 
+                  id="email" 
+                  name="email" 
+                  class="form-input" 
+                  placeholder="john@company.com"
+                  required
+                >
+              </div>
+              <div>
+                <label for="message" class="block text-sm font-medium text-charcoal mb-2">Tell me about your project</label>
+                <textarea 
+                  id="message" 
+                  name="message" 
+                  rows="4" 
+                  class="form-input resize-none" 
+                  placeholder="I need product images for my e-commerce store..."
+                  required
+                ></textarea>
+              </div>
+              <button type="submit" class="btn-primary w-full justify-center text-center">
+                Get in Touch
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                </svg>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-8 sm:py-12 border-t border-gold/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
+        <div class="flex items-center gap-2">
+          <span class="font-display text-lg sm:text-xl font-bold text-charcoal">M<span class="text-gold">.</span>Haroon</span>
+        </div>
+        
+        <!-- Social links -->
+        <div class="flex items-center gap-3 sm:gap-4">
+          <a href="mailto:mharoon.contact@gmail.com" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-gold/20 flex items-center justify-center hover:border-gold hover:bg-gold/5 transition-all" aria-label="Email">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-charcoal sm:w-[18px] sm:h-[18px]">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </a>
+          <!-- <a href="#" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-gold/20 flex items-center justify-center hover:border-gold hover:bg-gold/5 transition-all" aria-label="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-charcoal sm:w-[18px] sm:h-[18px]">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            </svg>
+          </a>
+          <a href="#" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-gold/20 flex items-center justify-center hover:border-gold hover:bg-gold/5 transition-all" aria-label="LinkedIn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-charcoal sm:w-[18px] sm:h-[18px]">
+              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+              <rect x="2" y="9" width="4" height="12"/>
+              <circle cx="4" cy="4" r="2"/>
+            </svg>
+          </a>
+          <a href="#" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-gold/20 flex items-center justify-center hover:border-gold hover:bg-gold/5 transition-all" aria-label="Twitter">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-charcoal sm:w-[18px] sm:h-[18px]">
+              <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+            </svg>
+          </a> -->
+        </div>
+        
+        <p class="text-muted text-xs sm:text-sm text-center md:text-right">
+          2026 Muhammad Haroon. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Success Modal -->
+  <div id="success-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-charcoal/50 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 max-w-md w-full text-center">
+      <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-gold to-goldLight flex items-center justify-center mx-auto mb-4 sm:mb-6">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" class="sm:w-8 sm:h-8">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <h3 class="font-display text-xl sm:text-2xl font-bold mb-2">Message Sent</h3>
+      <p class="text-muted mb-6 text-sm sm:text-base">Thank you for reaching out. I'll get back to you within 24 hours.</p>
+      <button onclick="closeModal()" class="btn-primary">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // Portfolio data
+    const portfolioItems = [
+      {
+        id: 1,
+        title: "Jewelery",
+        category: "Fashion",
+        result: "32% increase in product page engagement",
+        image: "images/sample1.webp"
+      },
+      {
+        id: 2,
+        title: "Wellness Collection",
+        category: "lifestyle",
+        result: "Featured in top lifestyle magazines",
+        image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80"
+      },
+      {
+        id: 3,
+        title: "Artisan Coffee",
+        category: "food",
+        result: "45% boost in social media engagement",
+        image: "images/sample4.webp"
+      },
+      {
+        id: 4,
+        title: "Fashion Editorial",
+        category: "fashion",
+        result: "Campaign drove 3x website traffic",
+        image: "images/sample3.webp"
+      },
+      {
+        id: 5,
+        title: "Tech Gadgets",
+        category: "product",
+        result: "Improved click-through by 28%",
+        image: "images/sample2.webp"
+      },
+      {
+        id: 6,
+        title: "Organic Skincare",
+        category: "lifestyle",
+        result: "Brand awareness increased 40%",
+        image: "images/sample6.webp"
+      },
+      {
+        id: 7,
+        title: "Gourmet Cuisine",
+        category: "food",
+        result: "Restaurant bookings up 25%",
+        image: "images/sample7.webp"
+      },
+      {
+        id: 8,
+        title: "Streetwear Lookbook",
+        category: "fashion",
+        result: "Collection sold out in 48 hours",
+        image: "images/sample8.webp"
+      },
+      {
+        id: 9,
+        title: "Premium Fragrance",
+        category: "product",
+        result: "Luxury positioning established",
+        image: "images/sample5.webp"
+      }
+    ];
+
+    // DOM elements
+    const portfolioGrid = document.getElementById('portfolio-grid');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const contactForm = document.getElementById('contact-form');
+    const successModal = document.getElementById('success-modal');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    const menuToggle = document.getElementById('menu-toggle');
+    const closeMenu = document.getElementById('close-menu');
+    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+    // Mobile menu functions
+    function openMobileMenu() {
+      mobileMenu.classList.add('open');
+      mobileOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileMenu() {
+      mobileMenu.classList.remove('open');
+      mobileOverlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    menuToggle.addEventListener('click', openMobileMenu);
+    closeMenu.addEventListener('click', closeMobileMenu);
+    mobileOverlay.addEventListener('click', closeMobileMenu);
+
+    mobileNavLinks.forEach(link => {
+      link.addEventListener('click', closeMobileMenu);
+    });
+
+    // Render portfolio items
+    function renderPortfolio(filter = 'all') {
+      const filtered = filter === 'all' 
+        ? portfolioItems 
+        : portfolioItems.filter(item => item.category === filter);
+      
+      portfolioGrid.innerHTML = filtered.map((item, index) => `
+        <div class="portfolio-card reveal reveal-delay-${(index % 3) + 1}" data-category="${item.category}">
+          <img 
+            src="${item.image}" 
+            alt="${item.title}"
+            class="w-full h-56 sm:h-64 lg:h-72 object-cover"
+            loading="lazy"
+          >
+          <div class="portfolio-overlay">
+            <h3 class="text-white font-display text-lg sm:text-xl font-semibold">${item.title}</h3>
+            <p class="text-white/80 text-xs sm:text-sm mt-1">${item.result}</p>
+            <a href="#" class="inline-flex items-center gap-2 text-white/90 text-xs sm:text-sm mt-2 sm:mt-3 hover:text-white transition-colors">
+              View Details
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sm:w-3.5 sm:h-3.5">
+                <path d="M7 17L17 7M17 7H7M17 7V17"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      `).join('');
+      
+      // Re-observe new elements
+      observeElements();
+    }
+
+    // Filter functionality
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderPortfolio(btn.dataset.filter);
+      });
+    });
+
+    // Intersection Observer for reveal animations
+    function observeElements() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+          }
+        });
+      }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      });
+
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    }
+
+    // Form submission
+    contactForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      // Simulate submission
+      const submitBtn = contactForm.querySelector('button[type="submit"]');
+      const originalContent = submitBtn.innerHTML;
+      submitBtn.innerHTML = `
+        <svg class="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+        </svg>
+        Sending...
+      `;
+      submitBtn.disabled = true;
+      
+      setTimeout(() => {
+        submitBtn.innerHTML = originalContent;
+        submitBtn.disabled = false;
+        successModal.classList.remove('hidden');
+        successModal.classList.add('flex');
+        contactForm.reset();
+      }, 1500);
+    });
+
+    // Close modal
+    function closeModal() {
+      successModal.classList.add('hidden');
+      successModal.classList.remove('flex');
+    }
+
+    // Close modal on backdrop click
+    successModal.addEventListener('click', (e) => {
+      if (e.target === successModal) closeModal();
+    });
+
+    // Keyboard navigation for modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !successModal.classList.contains('hidden')) {
+        closeModal();
+      }
+      if (e.key === 'Escape' && mobileMenu.classList.contains('open')) {
+        closeMobileMenu();
+      }
+    });
+
+    // Smooth scroll for navigation
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          const headerOffset = 80;
+          const elementPosition = target.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+
+    // Initialize
+    renderPortfolio();
+    observeElements();
+
+    // Parallax effect for orbs (desktop only)
+    if (window.innerWidth >= 1024) {
+      let ticking = false;
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            const scrollY = window.scrollY;
+            document.querySelectorAll('.orb').forEach((orb, i) => {
+              const speed = 0.02 + (i * 0.01);
+              orb.style.transform = `translateY(${scrollY * speed}px)`;
+            });
+            ticking = false;
+          });
+          ticking = true;
+        }
+      });
+    }
+  </script>
+</body>
+</html>
