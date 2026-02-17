@@ -313,34 +313,38 @@
             opacity: 1;
             visibility: visible;
         }
-        /* All images get a shimmering background */
-img {
-  background-color: #eee;
+        /* All images are hidden and show the shimmering skeleton background */
+img:not(.loaded) {
+  opacity: 0; /* Hides the actual image content while loading */
+  background-color: #ccc; /* Stronger dark-gray base */
   background-image: linear-gradient(
     90deg, 
-    rgba(255, 255, 255, 0) 0, 
-    rgba(255, 255, 255, 0.5) 50%, 
-    rgba(255, 255, 255, 0) 100%
+    #ccc 25%, 
+    #eee 50%, 
+    #ccc 75%
   );
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: shimmer 1.2s infinite linear;
   
-  /* Optional: keeps space for the image before it loads */
-  min-height: 100px; 
-  display: block;
+  /* Required to show the background */
+  display: block; 
+  min-height: 150px; 
 }
 
+/* Shimmer animation swipe */
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
 
-/* Class to remove the effect once loaded */
+/* Once loaded, reveal image and stop the animation */
 img.loaded {
-  background-image: none !important;
-  background-color: transparent !important;
+  opacity: 1 !important;
+  background: none !important;
   animation: none !important;
+  transition: opacity 0.4s ease-in; /* Smooth reveal */
 }
+
 
     </style>
 </head>
@@ -538,17 +542,21 @@ img.loaded {
         ];
         // ==========================================
 
-        document.querySelectorAll('img').forEach(img => {
-  // If image is already in cache/loaded
+       // Function to handle image reveal
+const revealImage = (img) => img.classList.add('loaded');
+
+document.querySelectorAll('img').forEach(img => {
+  // Check if already loaded (cached)
   if (img.complete) {
-    img.classList.add('loaded');
+    revealImage(img);
   } else {
-    // When the image finishes loading, remove skeleton
-    img.addEventListener('load', () => img.classList.add('loaded'));
-    // Also remove it if the image fails to load
-    img.addEventListener('error', () => img.classList.add('loaded'));
+    // Listen for the load event
+    img.addEventListener('load', () => revealImage(img));
+    // Also reveal (or show error state) if it fails to load
+    img.addEventListener('error', () => revealImage(img));
   }
 });
+
 
 
         let currentIndex = 0;
