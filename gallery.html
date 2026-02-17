@@ -621,6 +621,36 @@ document.querySelectorAll('img').forEach(img => {
 
         // Initialize
         renderGallery();
+
+
+                const mobileMenu = document.getElementById('mobile-menu');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+        const menuToggle = document.getElementById('menu-toggle');
+        const closeMenu = document.getElementById('close-menu');
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+
+                // Mobile menu functions
+        function openMobileMenu() {
+            mobileMenu.classList.add('open');
+            mobileOverlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileMenu() {
+            mobileMenu.classList.remove('open');
+            mobileOverlay.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        menuToggle.addEventListener('click', openMobileMenu);
+        closeMenu.addEventListener('click', closeMobileMenu);
+        mobileOverlay.addEventListener('click', closeMobileMenu);
+
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', closeMobileMenu);
+        });
+
     </script>
 </body>
 
