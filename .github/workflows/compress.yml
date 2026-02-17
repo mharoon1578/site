@@ -1,0 +1,29 @@
+name: Manual Selective Image Compression
+on:
+  workflow_dispatch: # Allows you to trigger this manually with one click
+
+jobs:
+  compress:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Grants the bot permission to save the compressed images
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Compress Sample Images
+        uses: calibreapp/image-actions@main
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          # Specifically targets sample images inside the 'images' folder
+          includePaths: 'images/sample*.webp'
+          # Quality 80 reduces size by ~90% with no visible quality loss
+          webpQuality: '80'
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add images/sample*.webp
+          git commit -m "Optimize sample1-36 images in images/ folder" || echo "No changes to commit"
+          git push
